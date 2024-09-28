@@ -23,21 +23,28 @@ const CartIcon = ({ isOpen }) => (
 export default function List() {
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
+  const [quantities, setQuantities] = useState({}); // State for tracking quantities
 
   const addToCart = (person) => {
+    const quantity = quantities[person.id] || 1; // Default to 1 if no quantity specified
     setCart((prevCart) => {
       const existingProduct = prevCart.find(item => item.id === person.id);
       if (existingProduct) {
         return prevCart.map(item =>
           item.id === person.id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       } else {
-        return [...prevCart, { ...person, quantity: 1 }];
+        return [...prevCart, { ...person, quantity }];
       }
     });
-    alert('สินค้าถูกเพิ่มในตะกร้าเเล้ว');
+    alert(`คุณได้ทำการซื้อ ${quantity} ${person.name} เรียบร้อยแล้ว!`);
+    setQuantities({ ...quantities, [person.id]: 1 }); // Reset quantity input after adding to cart
+  };
+
+  const handleQuantityChange = (id, value) => {
+    setQuantities((prev) => ({ ...prev, [id]: Math.max(1, value) })); // Ensure quantity is at least 1
   };
 
   const removeFromCart = (productId) => {
@@ -56,7 +63,24 @@ export default function List() {
     setShowCart((prevShowCart) => !prevShowCart);
   };
 
+  // Calculate total price with discounts
   const totalPrice = cart.reduce((total, product) => total + product.price * product.quantity, 0);
+  const discount = totalPrice > 500 ? 100 : totalPrice > 300 ? 30 : totalPrice > 200 ? 20 : 0;
+  const discountedPrice = totalPrice - discount;
+
+  // Add shipping cost
+  const shippingCost = 100;
+  const finalPrice = discountedPrice + shippingCost;
+
+  const confirmOrder = () => {
+    if (cart.length === 0) {
+      alert("กรุณาเพิ่มสินค้าก่อนที่จะยืนยันการสั่งซื้อ");
+      return;
+    }
+    alert(`ยืนยันการสั่งซื้อเรียบร้อยแล้ว! ราคารวม: ${totalPrice} บาท (ส่วนลด: ${discount} บาท) ราคารวมหลังส่วนลด: ${discountedPrice} บาท + ค่าส่ง: ${shippingCost} บาท ราคารวมสุดท้าย: ${finalPrice} บาท`);
+    setCart([]); // Reset cart after confirming the order
+    setShowCart(false); // Optionally close the cart
+  };
 
   return (
     <>
@@ -104,6 +128,19 @@ export default function List() {
               </p>
               <p className="mt-1">{person.rate} ⭐</p>
               <p className="mt-[-5px]">Price {person.price} บาท</p>
+              <input
+                type="number"
+                min="1"
+                value={quantities[person.id] || 1}
+                onChange={(e) => handleQuantityChange(person.id, parseInt(e.target.value))}
+                className="mt-2 w-16 text-center border rounded"
+              />
+              <button
+                onClick={() => addToCart(person)} // เพิ่มสินค้าลงในตะกร้าเมื่อคลิก
+                className="mt-3 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-300"
+              >
+                Buy
+              </button>
             </li>
           ))}
         </ul>
@@ -133,6 +170,19 @@ export default function List() {
         </ul>
         <div className="text-xl font-bold p-4 text-center">
           ราคารวม: {totalPrice} บาท
+          {discount > 0 && (
+            <p className="text-green-500">ส่วนลด: {discount} บาท</p>
+          )}
+          <p className="font-bold">ค่าส่ง: {shippingCost} บาท</p>
+          <p className="font-bold">ราคารวมสุดท้าย: {finalPrice} บาท</p>
+        </div>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={confirmOrder} // Call confirmOrder function when clicked
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-300"
+          >
+            ยืนยันการสั่งซื้อ
+          </button>
         </div>
       </div>
     </>
