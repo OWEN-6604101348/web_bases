@@ -1,15 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 * {
   box-sizing: border-box;
 }
 
 body {
   font-family: sans-serif;
-  margin: 20px;
-  padding: 0;
+  background: #B8926A   ;
 }
 
 h1 {
-  margin: 5rem;
   text-align: center;
   font-size: 50px;
   
@@ -72,3 +75,17 @@ img {
   height: 200px;
   border-radius: 50%;
 }
+
+.product-card {
+  border: 2px solid #B8926A; /* สีของขอบ */
+  border-radius: 15px; /* ทำให้ขอบนุ่มนวล */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* เงา */
+  transition: transform 0.3s, box-shadow 0.3s; /* เพิ่มการเปลี่ยนแปลง */
+}
+
+.product-card:hover {
+  transform: scale(1.05); /* ขยายเมื่อโฮเวอร์ */
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* เพิ่มความเข้มข้นของเงา */
+}
+
+
